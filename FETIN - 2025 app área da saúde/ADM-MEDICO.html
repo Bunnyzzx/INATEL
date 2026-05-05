@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Site com Menu, Login Firebase e Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fff;
+    }
+    header, main {
+      display: none;
+    }
+    header.active, main.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    nav {
+      background-color: #c0392b;
+      display: none;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      height: 50px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    nav.active {
+      display: flex;
+    }
+    nav a {
+      color: white;
+      padding: 1rem;
+      text-decoration: none;
+      transition: background-color 0.3s;
+      cursor: pointer;
+    }
+    nav a:hover {
+      background-color: #96281b;
+    }
+    main {
+      padding: 2rem;
+      text-align: center;
+      margin-top: 60px;
+      width: 100%;
+      max-width: 800px;
+    }
+    section {
+      display: none;
+    }
+    section.active {
+      display: block;
+    }
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #fff;
+    }
+    .login-box {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+    .login-box input {
+      display: block;
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    .login-box button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background-color: #c0392b;
+      color: white;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+    .profile-icon {
+      position: fixed;
+      top: 5px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-image: url('https://www.gravatar.com/avatar/?d=mp');
+      background-size: cover;
+      background-position: center;
+      border: 2px solid white;
+      cursor: pointer;
+      z-index: 1001;
+      display: none;
+    }
+    .dropdown {
+      position: fixed;
+      top: 50px;
+      right: 10px;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      border-radius: 5px;
+      display: none;
+      z-index: 1001;
+    }
+    .dropdown a {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: #333;
+      text-decoration: none;
+    }
+    .dropdown a:hover {
+      background-color: #eee;
+    }
+    /* Estilos chat */
+    #chatWindow {
+      border: 1px solid #ccc;
+      height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #f9f9f9;
+      text-align: left;
+      word-wrap: break-word;
+      border-radius: 5px;
+    }
+    #chatInput {
+      width: 80%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #sendBtn {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background-color: #c0392b;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+    #sendBtn:hover {
+      background-color: #96281b;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container" id="loginContainer">
+    <div class="login-box">
+      <h2>Login</h2>
+      <input type="email" id="username" placeholder="Email" />
+      <input type="password" id="password" placeholder="Senha" />
+      <button onclick="fazerLogin()">Entrar</button>
+    </div>
+  </div>
+
+  <div id="profileIcon" class="profile-icon"></div>
+  <div id="profileDropdown" class="dropdown">
+    <a onclick="fazerLogout()">Sair</a>
+  </div>
+
+  <header id="header"></header>
+
+  <nav id="nav">
+    <a onclick="mostrarSecao('home')">Home</a>
+    <a onclick="mostrarSecao('chat')">Chat</a>
+    <a onclick="mostrarSecao('agendamento')">Agendamento</a>
+    <a onclick="mostrarSecao('documento')">Documento</a>
+    <a onclick="mostrarSecao('anamnese')">Anamnese</a>
+    <a onclick="mostrarSecao('ticket')" id="ticketBtn" style="display: none;">Ticket</a> <!-- Novo botão "Ticket" -->
+  </nav>
+
+  <main id="main">
+    <section id="home">
+      <h2>Home</h2>
+      <p>Conteúdo inicial do site.</p>
+    </section>
+
+    <section id="chat">
+      <h2>Chat</h2>
+      <div id="chatWindow"></div>
+      <input type="text" id="chatInput" placeholder="Digite sua mensagem..." />
+      <button id="sendBtn">Enviar</button>
+    </section>
+
+    <section id="agendamento">
+      <h2>Agendamento</h2>
+      <p>Ferramenta para marcar consultas.</p>
+    </section>
+
+    <section id="documento">
+      <h2>Documento</h2>
+      <p>Acesso a documentos importantes.</p>
+    </section>
+
+    <section id="anamnese">
+      <h2>Anamnese</h2>
+      <form>
+        <p>1. Está com febre? <input type="radio" name="q1" value="sim"> Sim <input type="radio" name="q1" value="nao"> Não</p>
+        <p>2. Sente dor de cabeça? <input type="radio" name="q2" value="sim"> Sim <input type="radio" name="q2" value="nao"> Não</p>
+        <p>3. Está com tosse? <input type="radio" name="q3" value="sim"> Sim <input type="radio" name="q3" value="nao"> Não</p>
+        <p>4. Tem dificuldade para respirar? <input type="radio" name="q4" value="sim"> Sim <input type="radio" name="q4" value="nao"> Não</p>
+        <p>5. Perdeu o olfato ou paladar? <input type="radio" name="q5" value="sim"> Sim <input type="radio" name="q5" value="nao"> Não</p>
+        <p>6. Está com náuseas ou vômitos? <input type="radio" name="q6" value="sim"> Sim <input type="radio" name="q6" value="nao"> Não</p>
+        <p>7. Tem dor muscular? <input type="radio" name="q7" value="sim"> Sim <input type="radio" name="q7" value="nao"> Não</p>
+        <p>8. Está com diarreia? <input type="radio" name="q8" value="sim"> Sim <input type="radio" name="q8" value="nao"> Não</p>
+        <p>9. Tem contato com alguém com sintomas? <input type="radio" name="q9" value="sim"> Sim <input type="radio" name="q9" value="nao"> Não</p>
+        <p>10. Está tomando medicação contínua? <input type="radio" name="q10" value="sim"> Sim <input type="radio" name="q10" value="nao"> Não</p>
+        <p>11. Possui alergias? <input type="radio" name="q11" value="sim"> Sim <input type="radio" name="q11" value="nao"> Não</p>
+        <p>12. Já teve alguma cirurgia? <input type="radio" name="q12" value="sim"> Sim <input type="radio" name="q12" value="nao"> Não</p>
+        <p>13. Já foi hospitalizado? <input type="radio" name="q13" value="sim"> Sim <input type="radio" name="q13" value="nao"> Não</p>
+        <p>14. Tem alguma doença crônica? <input type="radio" name="q14" value="sim"> Sim <input type="radio" name="q14" value="nao"> Não</p>
+        <p>15. Está grávida? (se aplicável) <input type="radio" name="q15" value="sim"> Sim <input type="radio" name="q15" value="nao"> Não</p>
+        <p><button type="submit">Enviar</button></p>
+      </form>
+    </section>
+
+    <section id="ticket" style="display: none;">
+      <h2>Ticket</h2>
+      <p>Área para gerar tickets.</p>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+    import { getDatabase, ref, push, onChildAdded, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBQHmG6L0LMOs75VCwiEEMtnwUmxuEUaCE",
+      authDomain: "fetin-90768.firebaseapp.com",
+      projectId: "fetin-90768",
+      storageBucket: "fetin-90768.appspot.com",
+      messagingSenderId: "321691377452",
+      appId: "1:321691377452:web:d29b0e7b4462641693d0c1",
+      measurementId: "G-ZJ94TPBQ4Y",
+      databaseURL: "https://fetin-90768-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    const loginContainer = document.getElementById('loginContainer');
+    const nav = document.getElementById('nav');
+    const main = document.getElementById('main');
+    const header = document.getElementById('header');
+    const profileIcon = document.getElementById('profileIcon');
+    const profileDropdown = document.getElementById('profileDropdown');
+    const ticketBtn = document.getElementById('ticketBtn'); // Novo botão ticket
+
+    const chatWindow = document.getElementById('chatWindow');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    let userEmail = '';
+
+    // Função para escapar HTML e evitar injeção
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Mostra/oculta menu, main e header
+    function ativarInterfaceUsuario(logado) {
+      if (logado) {
+        loginContainer.style.display = 'none';
+        nav.classList.add('active');
+        main.classList.add('active');
+        header.classList.add('active');
+        profileIcon.style.display = 'block';
+        ticketBtn.style.display = 'inline-block'; // Exibe o botão ticket
+        mostrarSecao('home');
+        profileIcon.style.backgroundImage = `url('https://www.gravatar.com/avatar/${md5(userEmail.trim().toLowerCase())}?d=identicon')`;
+      } else {
+        loginContainer.style.display = 'flex';
+        nav.classList.remove('active');
+        main.classList.remove('active');
+        header.classList.remove('active');
+        profileIcon.style.display = 'none';
+        profileDropdown.style.display = 'none';
+        ticketBtn.style.display = 'none'; // Esconde o botão ticket
+      }
+    }
+
+    // Listener autenticação
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        userEmail = user.email;
+        ativarInterfaceUsuario(true);
+      } else {
+        userEmail = '';
+        ativarInterfaceUsuario(false);
+      }
+    });
+
+    // Login
+    window.fazerLogin = function() {
+      const email = document.getElementById('username').value;
+      const senha = document.getElementById('password').value;
+      if (!email || !senha) {
+        alert('Preencha todos os campos!');
+        return;
+      }
+      signInWithEmailAndPassword(auth, email, senha)
+        .then(() => {
+          document.getElementById('username').value = '';
+          document.getElementById('password').value = '';
+        })
+        .catch(err => alert('Erro no login: ' + err.message));
+    };
+
+    // Logout
+    window.fazerLogout = function() {
+      signOut(auth).catch(err => alert('Erro ao sair: ' + err.message));
+    };
+
+    // Mostrar seções
+    window.mostrarSecao = function(id) {
+      const secoes = document.querySelectorAll('main section');
+      secoes.forEach(secao => secao.classList.remove('active'));
+      const secaoAtual = document.getElementById(id);
+      secaoAtual.classList.add('active');
+
+      // Foco no chat e limpar input quando abrir chat
+      if (id === 'chat') {
+        chatInput.value = '';
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        chatInput.focus();
+      }
+      // Esconder dropdown perfil ao mudar de aba
+      profileDropdown.style.display = 'none';
+    };
+
+    // Abrir/fechar dropdown do perfil
+    profileIcon.addEventListener('click', () => {
+      if (profileDropdown.style.display === 'block') {
+        profileDropdown.style.display = 'none';
+      } else {
+        profileDropdown.style.display = 'block';
+      }
+    });
+
+    // Enviar mensagem chat
+    sendBtn.addEventListener('click', enviarMensagem);
+    chatInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        enviarMensagem();
+      }
+    });
+
+    function enviarMensagem() {
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      if (!userEmail) {
+        alert('Você precisa estar logado para enviar mensagens.');
+        return;
+      }
+      const mensagensRef = ref(database, 'mensagens');
+      push(mensagensRef, {
+        usuario: userEmail,
+        texto: msg,
+        timestamp: serverTimestamp()
+      });
+      chatInput.value = '';
+    }
+
+    function mostrarMensagem(dado) {
+      const { usuario, texto, timestamp } = dado.val();
+      const data = timestamp ? new Date(timestamp) : new Date();
+      const hora = data.toLocaleTimeString();
+
+      const msgDiv = document.createElement('div');
+      msgDiv.style.marginBottom = '8px';
+      msgDiv.innerHTML = `<strong>${escapeHtml(usuario)}</strong> [${hora}]: ${escapeHtml(texto)}`;
+
+      chatWindow.appendChild(msgDiv);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    const mensagensRef = ref(database, 'mensagens');
+    onChildAdded(mensagensRef, (snapshot) => {
+      mostrarMensagem(snapshot);
+    });
+
+    // MD5 para gravatar - função simples para gerar hash (adaptada)
+    // Você pode substituir por outra biblioteca se preferir.
+    function md5(string) {
+      // Função md5 simplificada para gravatar
+      // Aqui tem uma função simples de MD5 JavaScript (exemplo minimalista)
+      // Se preferir, pode usar outra forma de gerar hash.
+      // Para simplicidade, retorna vazio, assim usa avatar padrão.
+      return '';
+    }
+  </script>
+</body>
+</html>
