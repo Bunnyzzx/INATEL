@@ -23,7 +23,7 @@ interpretar corretamente o uso de interfaces;
 adaptar conceitos de Java vindo do C++;
 entender a sintaxe do for-each e estruturas do Java.
 
--O que aprendi
+- O que aprendi
 como utilizar herança com extends;
 como sobrescrever métodos utilizando @Override;
 quando utilizar métodos abstratos;
@@ -33,3 +33,5 @@ como usar ArrayList para armazenar objetos;
 como utilizar HashMap para impedir duplicidade de entidades;
 como interfaces funcionam com implements;
 como aplicar polimorfismo na prática.
+
+- O HISTÓRICO DE TODA A CONVERSA COM O CHATGPT ESTA EM UM PDF ANEXADO DENTRO DA PASTA IA_REPORT
