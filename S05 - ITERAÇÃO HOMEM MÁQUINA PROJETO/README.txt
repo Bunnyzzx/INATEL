@@ -1,0 +1,1 @@
+esse projeto é uma versão melhorada com função de oportunidades de estágio-emprego entre outras funcionalidades implementada!
