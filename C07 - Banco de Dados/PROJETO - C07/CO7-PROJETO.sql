@@ -137,8 +137,8 @@ GRANT SELECT ON escola_db.* TO 'adm';
 GRANT INSERT ON escola_db.* TO 'adm';
 GRANT UPDATE ON escola_db.* TO 'adm';
 GRANT 'adm' TO 'coordenador'@'%', 'secretaria'@'%';
-ALTER USER 'coordenador'@'localhost' DEFAULT ROLE 'adm';
-ALTER USER 'secretaria'@'localhost'  DEFAULT ROLE 'adm';
+ALTER USER 'coordenador'@'%' DEFAULT ROLE 'adm';
+ALTER USER 'secretaria'@'%'  DEFAULT ROLE 'adm';
 
 
 -- Procedure Lista todos os alunos matriculados em uma turma específica
