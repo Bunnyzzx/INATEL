@@ -1,6 +1,6 @@
 -- Caio de Castro Yarouhas - 863 - GES
--- Paulo Eduardo Costa - 2184 - GES
--- Paulo Henrique Martins - 2239 - GES
+-- Paulo Eduardo Costa - 2184 - GEC
+-- Paulo Henrique Martins - 2239 - GEC
 
 DROP DATABASE IF EXISTS escola_db;
 CREATE DATABASE escola_db;
@@ -124,8 +124,8 @@ INSERT INTO Matricula (Aluno_idAluno, Turma_idTurma, data_matricula) VALUES
 (6,5,'2026-02-03 09:00:00');
 
 -- Usuários
-DROP USER IF EXISTS 'coordenador'@'localhost';
-DROP USER IF EXISTS 'secretaria'@'localhost';
+DROP USER IF EXISTS 'coordenador'@'%';
+DROP USER IF EXISTS 'secretaria'@'%';
 
 CREATE USER 'coordenador'@'%' IDENTIFIED BY '1234';
 CREATE USER 'secretaria'@'%'  IDENTIFIED BY '5678';
@@ -175,7 +175,9 @@ CREATE TRIGGER tg_data_matricula
 BEFORE INSERT ON Matricula
 FOR EACH ROW
 BEGIN
+IF NEW.data_matricula IS NULL THEN
 SET NEW.data_matricula = NOW();
+END IF;
 END$$
 
 -- VIEW  Visão geral das turmas com professor, sala e total de alunos
